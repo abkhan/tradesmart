@@ -19,6 +19,7 @@ const (
 
 func main() {
 	filePath := flag.String("file", "", "Path to Sales CSV file")
+	dateBase := flag.String("date-base", "2026-02", "Base year and month for relative dates (YYYY-MM)")
 	flag.Parse()
 
 	if *filePath == "" {
@@ -41,7 +42,7 @@ func main() {
 	repo := mongodb.NewRepository(client.Database(dbName), collectionName)
 
 	// 3. Process Input
-	trades, err := parser.LoadTradesFromFile(*filePath)
+	trades, err := parser.LoadTradesFromFile(*filePath, *dateBase)
 	if err != nil {
 		log.Fatalf("Error loading sales from file: %v", err)
 	}

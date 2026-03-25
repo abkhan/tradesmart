@@ -4,8 +4,8 @@ import "time"
 
 // Trade represents a unified model for orders and sales.
 type Trade struct {
-	OrderDate       string    `bson:"order_date" json:"order_date"`
-	DeliveryDate    string    `bson:"delivery_date" json:"delivery_date"`
+	OrderDate       time.Time `bson:"order_date" json:"order_date"`
+	DeliveryDate    time.Time `bson:"delivery_date" json:"delivery_date"`
 	OrderType       string    `bson:"order_type" json:"order_type"`
 	SellerOrderID   string    `bson:"seller_order_id" json:"seller_order_id"`
 	OrderID         string    `bson:"order_id" json:"order_id"`

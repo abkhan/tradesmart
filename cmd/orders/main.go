@@ -26,6 +26,7 @@ func main() {
 	orderType := flag.String("type", "Sale", "Order Type")
 	sellerID := flag.String("id", "", "Seller Order ID")
 	filePath := flag.String("file", "", "Path to CSV or Excel file")
+	dateBase := flag.String("date-base", "2026-02", "Base year and month for relative dates (YYYY-MM)")
 	flag.Parse()
 
 	// 1. Setup Configuration
@@ -47,7 +48,7 @@ func main() {
 	var trades []models.Trade
 
 	if *filePath != "" {
-		trades, err = parser.LoadTradesFromFile(*filePath)
+		trades, err = parser.LoadTradesFromFile(*filePath, *dateBase)
 		if err != nil {
 			log.Fatalf("Error loading trades from file: %v", err)
 		}
@@ -58,7 +59,7 @@ func main() {
 			SalePrice1:    *price,
 			OrderType:     *orderType,
 			SellerOrderID: *sellerID,
-			OrderDate:     time.Now().Format("2006-01-02"),
+			OrderDate:     time.Now(),
 			Created:       time.Now(),
 		}
 		trades = append(trades, trade)

@@ -12,21 +12,20 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
-// ParseTradeRow maps a row of strings to a Trade model.
-func ParseTradeRow(row []string) models.Trade {
+// ParseTradeRow maps a row of strings to a Trade model, using baseDate to resolve relative dates.
+func ParseTradeRow(row []string, baseDate string) models.Trade {
 	t := models.Trade{
-		OrderDate:     SafeGet(row, 0),
-		DeliveryDate:  SafeGet(row, 1),
+		OrderDate:     ParseFlexibleDate(SafeGet(row, 0), baseDate),
+		DeliveryDate:  ParseFlexibleDate(SafeGet(row, 1), baseDate),
 		OrderType:     SafeGet(row, 2),
 		SellerOrderID: SafeGet(row, 3),
-		OrderID:       SafeGet(row, 4), // Some CSVs have OrderID at index 3 or 4
-		Inventory:     SafeGet(row, 4), // In some layouts
+		OrderID:       SafeGet(row, 4),
+		Inventory:     SafeGet(row, 4),
 		Status:        SafeGet(row, 5),
 		Tracking:      SafeGet(row, 6),
 		Created:       time.Now(),
 	}
 
-	// Adjusting for jumbled indices if needed, but keeping the core logic consistent
 	t.PackageCount = ParseInt(SafeGet(row, 7))
 	t.Qty = ParseInt(SafeGet(row, 8))
 	t.SalePrice1 = ParseFloat(SafeGet(row, 9))
@@ -47,7 +46,6 @@ func ParseTradeRow(row []string) models.Trade {
 	t.ThreePLCost = ParseFloat(SafeGet(row, 24))
 	t.Net = ParseFloat(SafeGet(row, 25))
 
-	// Re-check some mappings that vary between orders and sales
 	if len(row) > 26 {
 		t.Inventory = SafeGet(row, 26)
 	}
@@ -55,18 +53,50 @@ func ParseTradeRow(row []string) models.Trade {
 	return t
 }
 
+// ParseFlexibleDate tries to parse 'Sun, Feb 1' using a base year/month (YYYY-MM).
+func ParseFlexibleDate(dateStr, baseDate string) time.Time {
+	dateStr = strings.TrimSpace(dateStr)
+	if dateStr == "" {
+		return time.Time{}
+	}
+
+	// Case 1: Standard YYYY-MM-DD
+	if t, err := time.Parse("2006-01-02", dateStr); err == nil {
+		return t
+	}
+
+	// Case 2: "Sun, Feb 1" or "Feb 1"
+	// Clean string: remove commas
+	cleanStr := strings.ReplaceAll(dateStr, ",", "")
+	parts := strings.Fields(cleanStr)
+	if len(parts) > 0 {
+		dayStr := parts[len(parts)-1]
+		// Convert day to 2 digits
+		dayInt := 0
+		fmt.Sscanf(dayStr, "%d", &dayInt)
+		if dayInt > 0 {
+			fullDateStr := fmt.Sprintf("%s-%02d", baseDate, dayInt)
+			if t, err := time.Parse("2006-01-02", fullDateStr); err == nil {
+				return t
+			}
+		}
+	}
+
+	return time.Time{}
+}
+
 // LoadTradesFromFile loads trade records from a CSV or Excel file.
-func LoadTradesFromFile(path string) ([]models.Trade, error) {
+func LoadTradesFromFile(path, baseDate string) ([]models.Trade, error) {
 	if strings.HasSuffix(path, ".csv") {
-		return LoadCSV(path)
+		return LoadCSV(path, baseDate)
 	} else if strings.HasSuffix(path, ".xlsx") {
-		return LoadExcel(path)
+		return LoadExcel(path, baseDate)
 	}
 	return nil, fmt.Errorf("unsupported file format: %s", path)
 }
 
 // LoadCSV reads trade records from a CSV file.
-func LoadCSV(path string) ([]models.Trade, error) {
+func LoadCSV(path, baseDate string) ([]models.Trade, error) {
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -84,13 +114,13 @@ func LoadCSV(path string) ([]models.Trade, error) {
 		if i == 0 || len(record) < 9 {
 			continue // skip header or invalid rows
 		}
-		trades = append(trades, ParseTradeRow(record))
+		trades = append(trades, ParseTradeRow(record, baseDate))
 	}
 	return trades, nil
 }
 
 // LoadExcel reads trade records from an Excel file.
-func LoadExcel(path string) ([]models.Trade, error) {
+func LoadExcel(path, baseDate string) ([]models.Trade, error) {
 	f, err := excelize.OpenFile(path)
 	if err != nil {
 		return nil, err
@@ -112,7 +142,7 @@ func LoadExcel(path string) ([]models.Trade, error) {
 		if i == 0 || len(row) < 9 {
 			continue
 		}
-		trades = append(trades, ParseTradeRow(row))
+		trades = append(trades, ParseTradeRow(row, baseDate))
 	}
 	return trades, nil
 }
