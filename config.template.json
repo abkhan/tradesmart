@@ -1,0 +1,7 @@
+{
+  "mongo_user": "YOUR_USERNAME",
+  "mongo_password": "YOUR_PASSWORD",
+  "mongo_scheme": "mongodb+srv",
+  "mongo_host": "clusterName.yourServer.mongodb.net",
+  "mongo_uri": "/?appName=Cluster0"
+}
