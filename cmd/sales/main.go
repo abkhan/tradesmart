@@ -14,7 +14,7 @@ import (
 
 const (
 	dbName         = "tradesmart"
-	collectionName = "sales"
+	collectionName = "orders"
 )
 
 func main() {

@@ -18,7 +18,7 @@ import (
 
 func main() {
 	// CLI Flags
-	collection := flag.String("collection", "sales", "Collection to query (sales or orders)")
+	collection := flag.String("collection", "orders", "Collection to query (orders is default)")
 	queryJSON := flag.String("query", "{}", `MongoDB query in JSON format.
 Examples:
   '{"qty": 10}'

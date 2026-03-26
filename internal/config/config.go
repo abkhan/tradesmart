@@ -15,6 +15,18 @@ type Config struct {
 }
 
 func LoadConfig(path string) (*Config, error) {
+	// 1. Try to load from environment variables first (Good for Docker/K8s)
+	if os.Getenv("MONGO_USER") != "" {
+		return &Config{
+			MongoUser:     os.Getenv("MONGO_USER"),
+			MongoPassword: os.Getenv("MONGO_PASSWORD"),
+			MongoScheme:   getEnv("MONGO_SCHEME", "mongodb+srv"),
+			MongoHost:     getEnv("MONGO_HOST", "cluster0.dbpelmw.mongodb.net"),
+			MongoURI:      getEnv("MONGO_URI", "/?appName=Cluster0"),
+		}, nil
+	}
+
+	// 2. Fallback to JSON file
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("could not read config file: %v", err)
@@ -24,4 +36,11 @@ func LoadConfig(path string) (*Config, error) {
 		return nil, fmt.Errorf("could not parse config file: %v", err)
 	}
 	return &cfg, nil
+}
+
+func getEnv(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return fallback
 }

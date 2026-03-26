@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orders-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orders-api
+  template:
+    metadata:
+      labels:
+        app: orders-api
+    spec:
+      containers:
+      - name: orders-api
+        image: orders-api:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8080
+        env:
+        - name: MONGO_USER
+          value: "abkhan"
+        - name: MONGO_PASSWORD
+          value: "Pud8vHaN8Kst1PCZ"
+        - name: MONGO_HOST
+          value: "cluster0.dbpelmw.mongodb.net"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orders-api
+spec:
+  selector:
+    app: orders-api
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reports-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reports-api
+  template:
+    metadata:
+      labels:
+        app: reports-api
+    spec:
+      containers:
+      - name: reports-api
+        image: reports-api:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8081
+        env:
+        - name: MONGO_USER
+          value: "abkhan"
+        - name: MONGO_PASSWORD
+          value: "Pud8vHaN8Kst1PCZ"
+        - name: MONGO_HOST
+          value: "cluster0.dbpelmw.mongodb.net"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reports-api
+spec:
+  selector:
+    app: reports-api
+  ports:
+    - protocol: TCP
+      port: 8081
+      targetPort: 8081
+  type: NodePort
