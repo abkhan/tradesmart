@@ -36,12 +36,12 @@ func main() {
 
 	srv := &http.Server{
 		Handler:      r,
-		Addr:         ":8080",
+		Addr:         ":8082",
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
 
-	log.Println("Orders API starting on :8080")
+	log.Println("Orders API starting on :8082")
 	log.Fatal(srv.ListenAndServe())
 }
 

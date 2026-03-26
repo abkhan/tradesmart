@@ -34,12 +34,12 @@ func main() {
 
 	srv := &http.Server{
 		Handler:      r,
-		Addr:         ":8081", // Different port from orders-api
+		Addr:         ":8083", // Different port from orders-api
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
 
-	log.Println("Reports API starting on :8081")
+	log.Println("Reports API starting on :8083")
 	log.Fatal(srv.ListenAndServe())
 }
 

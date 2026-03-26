@@ -78,14 +78,28 @@ minikube service orders-api --url
 minikube service reports-api --url
 ```
 
-### 3. Endpoints
+### 3. Testing with CURL
+Once the services are running in Minikube, you can use `curl` to fetch data:
 
-**Orders API (Port 8080)**:
+```bash
+# Get an order by ID (replace URL with minikube service output)
+curl $(minikube service orders-api --url)/api/orders/01LNK3Q
+
+# Search for orders
+curl "$(minikube service orders-api --url)/api/orders/search?q=Dropship"
+
+# Get a reports summary for a date range
+curl "$(minikube service reports-api --url)/api/reports/summary?startDate=2026-03-01&endDate=2026-03-31"
+```
+
+### 4. Endpoints
+
+**Orders API (Port 8082)**:
 - `GET /api/orders/{orderId}`
 - `GET /api/orders/tracking/{trackingId}`
 - `GET /api/orders/search?q={term}`
 
-**Reports API (Port 8081)**:
+**Reports API (Port 8083)**:
 - `GET /api/reports/summary?startDate=2026-01-01&endDate=2026-03-25`
 
 ## Project Structure
