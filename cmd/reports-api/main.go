@@ -11,6 +11,7 @@ import (
 	"mongotest/internal/mongodb"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 )
 
 var repo *mongodb.Repository
@@ -32,15 +33,22 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/api/reports/summary", getSummary).Methods("GET")
 
+	// Setup CORS
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://10.0.0.206", "http://10.0.0.164", "http://localhost:3000", "http://10.0.0.206:*", "http://10.0.0.164:*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Content-Type", "Authorization"},
+		AllowCredentials: true,
+	})
+
 	srv := &http.Server{
-		Handler:      r,
-		Addr:         ":8080", // Different service port but same internal port
+		Handler:      c.Handler(r),
+		Addr:         ":8080",
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
 
-	log.Println("Reports API starting on :8080")
-
+	log.Println("Reports API starting on :8080 with CORS allowed for 10.0.0.206 and 10.0.0.164")
 	log.Fatal(srv.ListenAndServe())
 }
 
