@@ -35,8 +35,8 @@ spec:
     app: orders-api
   ports:
     - protocol: TCP
-      port: 8082
-      targetPort: 8082
+      port: 8083       # External Service Port
+      targetPort: 8082 # Internal Container Port
   type: NodePort
 ---
 apiVersion: apps/v1
@@ -76,6 +76,6 @@ spec:
     app: reports-api
   ports:
     - protocol: TCP
-      port: 8083
-      targetPort: 8083
+      port: 8084       # External Service Port
+      targetPort: 8083 # Internal Container Port
   type: NodePort

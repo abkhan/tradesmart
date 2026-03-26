@@ -94,12 +94,12 @@ curl "$(minikube service reports-api --url)/api/reports/summary?startDate=2026-0
 
 ### 4. Endpoints
 
-**Orders API (Port 8082)**:
+**Orders API (Internal: 8082, Service: 8083)**:
 - `GET /api/orders/{orderId}`
 - `GET /api/orders/tracking/{trackingId}`
 - `GET /api/orders/search?q={term}`
 
-**Reports API (Port 8083)**:
+**Reports API (Internal: 8083, Service: 8084)**:
 - `GET /api/reports/summary?startDate=2026-01-01&endDate=2026-03-25`
 
 ## Project Structure
