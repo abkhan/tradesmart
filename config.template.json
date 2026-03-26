@@ -2,6 +2,7 @@
   "mongo_user": "YOUR_USERNAME",
   "mongo_password": "YOUR_PASSWORD",
   "mongo_scheme": "mongodb+srv",
-  "mongo_host": "clusterName.yourServer.mongodb.net",
-  "mongo_uri": "/?appName=Cluster0"
+  "mongo_host": "cluster0.dbpelmw.mongodb.net",
+  "mongo_uri": "/?appName=Cluster0",
+  "allowed_origins": ["http://10.0.0.206", "http://10.0.0.164", "http://localhost:3000"]
 }
