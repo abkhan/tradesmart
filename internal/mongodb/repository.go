@@ -42,6 +42,29 @@ func (r *Repository) GetByTracking(ctx context.Context, tracking string) (*model
 	return &t, nil
 }
 
+// GetByDate finds all records for a specific date (ignoring time).
+func (r *Repository) GetByDate(ctx context.Context, date time.Time) ([]models.Trade, error) {
+	// Calculate start and end of the day
+	start := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
+	end := start.AddDate(0, 0, 1)
+
+	filter := bson.M{
+		"order_date": bson.M{"$gte": start, "$lt": end},
+	}
+
+	cursor, err := r.coll.Find(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var trades []models.Trade
+	if err := cursor.All(ctx, &trades); err != nil {
+		return nil, err
+	}
+	return trades, nil
+}
+
 // Search finds records by a general search term (matching seller_order_id, tracking, or order_type).
 func (r *Repository) Search(ctx context.Context, query string) ([]models.Trade, error) {
 	filter := bson.M{

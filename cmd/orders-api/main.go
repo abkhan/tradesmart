@@ -32,6 +32,7 @@ func main() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/api/orders/search", searchOrders).Methods("GET")
+	r.HandleFunc("/api/orders/day/{date}", getOrdersByDay).Methods("GET")
 	r.HandleFunc("/api/orders/{orderId}", getOrderByID).Methods("GET")
 	r.HandleFunc("/api/orders/tracking/{trackingId}", getOrderByTracking).Methods("GET")
 
@@ -50,7 +51,7 @@ func main() {
 		ReadTimeout:  15 * time.Second,
 	}
 
-	log.Println("Orders API starting on :8080 with CORS allowed for 10.0.0.206 and 10.0.0.164")
+	log.Println("Orders API starting on :8080 with CORS allowed")
 	log.Fatal(srv.ListenAndServe())
 }
 
@@ -101,6 +102,29 @@ func searchOrders(w http.ResponseWriter, r *http.Request) {
 	trades, err := repo.Search(ctx, query)
 	if err != nil {
 		http.Error(w, "Search failed", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(trades)
+}
+
+func getOrdersByDay(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	dateStr := vars["date"]
+
+	t, err := time.Parse("2006-01-02", dateStr)
+	if err != nil {
+		http.Error(w, "Invalid date format (expected YYYY-MM-DD)", http.StatusBadRequest)
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	trades, err := repo.GetByDate(ctx, t)
+	if err != nil {
+		http.Error(w, "Failed to retrieve orders", http.StatusInternalServerError)
 		return
 	}
 

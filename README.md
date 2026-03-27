@@ -97,6 +97,7 @@ curl "$(minikube service reports-api --url)/api/reports/summary?startDate=2026-0
 **Orders API (Internal: 8080, Service: 8083)**:
 - `GET /api/orders/{orderId}`
 - `GET /api/orders/tracking/{trackingId}`
+- `GET /api/orders/day/{date}` (YYYY-MM-DD)
 - `GET /api/orders/search?q={term}`
 
 **Reports API (Internal: 8080, Service: 8084)**:
