@@ -2,6 +2,7 @@ package mongodb
 
 import (
 	"context"
+	"time"
 
 	"mongotest/internal/models"
 
@@ -138,20 +139,29 @@ func (r *Repository) GetSummary(ctx context.Context, start, end interface{}) (*S
 }
 
 func toDouble(v interface{}) float64 {
-	if v == nil { return 0 }
+	if v == nil {
+		return 0
+	}
 	switch val := v.(type) {
-	case float64: return val
-	case int32: return float64(val)
-	case int64: return float64(val)
+	case float64:
+		return val
+	case int32:
+		return float64(val)
+	case int64:
+		return float64(val)
 	}
 	return 0
 }
 
 func toInt64(v interface{}) int64 {
-	if v == nil { return 0 }
+	if v == nil {
+		return 0
+	}
 	switch val := v.(type) {
-	case int32: return int64(val)
-	case int64: return val
+	case int32:
+		return int64(val)
+	case int64:
+		return val
 	}
 	return 0
 }

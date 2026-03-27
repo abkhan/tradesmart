@@ -50,24 +50,36 @@ go run cmd/diff/main.go -f1 file1.csv -f2 file2.csv
 go run cmd/reports/main.go -type summary -month 2026-02
 ```
 
-## API Services & Minikube Deployment
+## API Services & Remote Deployment
 
 The project includes two API services: `orders-api` and `reports-api`.
 
-### 1. Build & Deploy
-Point your shell to Minikube's Docker environment and build the images:
+### 1. Build & Deploy (Remote)
+Use the provided `deploy.sh` script to build the images and transfer them to your remote server:
 
+```bash
+./deploy.sh
+```
+
+Then, on the remote machine:
+```bash
+docker load < orders-api.tar
+docker load < reports-api.tar
+kubectl rollout restart deployment/orders-api
+kubectl rollout restart deployment/reports-api
+```
+
+### 2. Local Minikube Deployment
+Alternatively, for local development:
 ```bash
 # Set docker env
 eval $(minikube docker-env)
 
-# Build Orders API
+# Build
 docker build -t orders-api:latest --build-arg APP_NAME=orders-api .
-
-# Build Reports API
 docker build -t reports-api:latest --build-arg APP_NAME=reports-api .
 
-# Deploy to Minikube
+# Deploy
 kubectl apply -f k8s-manifests.yaml
 ```
 
