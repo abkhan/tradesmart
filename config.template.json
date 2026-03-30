@@ -4,5 +4,15 @@
   "mongo_scheme": "mongodb+srv",
   "mongo_host": "cluster0.dbpelmw.mongodb.net",
   "mongo_uri": "/?appName=Cluster0",
-  "allowed_origins": ["http://10.0.0.206", "http://10.0.0.164", "http://localhost:3000"]
+  "allowed_origins": [
+    "http://10.0.0.206",
+    "http://10.0.0.164",
+    "http://10.0.0.164:8080",
+    "http://10.0.0.164:3000",
+    "http://10.0.0.164:80",
+    "http://10.0.0.206:8080",
+    "http://10.0.0.206:3000",
+    "http://10.0.0.206:80",
+    "http://localhost:3000"
+  ]
 }

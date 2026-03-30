@@ -15,6 +15,7 @@ import (
 )
 
 var repo *mongodb.Repository
+var dbClient *mongodb.Client
 
 func main() {
 	cfg, err := config.LoadConfig("config.json")
@@ -22,15 +23,19 @@ func main() {
 		log.Fatalf("Failed to load config: %v", err)
 	}
 
-	client, err := mongodb.Connect(cfg)
+	dbClient, err = mongodb.Connect(cfg)
 	if err != nil {
 		log.Fatalf("Failed to connect to MongoDB: %v", err)
 	}
-	defer client.Disconnect()
+	defer dbClient.Disconnect()
 
-	repo = mongodb.NewRepository(client.Database("tradesmart"), "orders")
+	// Start background health check (every 1 minute)
+	dbClient.StartHealthCheck(1 * time.Minute)
+
+	repo = mongodb.NewRepository(dbClient.Database("tradesmart"), "orders")
 
 	r := mux.NewRouter()
+	r.HandleFunc("/health", healthCheck).Methods("GET")
 	r.HandleFunc("/api/reports/summary", getSummary).Methods("GET")
 
 	// Setup CORS
@@ -48,8 +53,18 @@ func main() {
 		ReadTimeout:  15 * time.Second,
 	}
 
-	log.Println("Reports API starting on :8080 with CORS allowed for 10.0.0.206 and 10.0.0.164")
+	log.Println("Reports API starting on :8080 with health checks enabled")
 	log.Fatal(srv.ListenAndServe())
+}
+
+func healthCheck(w http.ResponseWriter, r *http.Request) {
+	if dbClient.IsHealthy() {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("OK"))
+	} else {
+		w.WriteHeader(http.StatusServiceUnavailable)
+		w.Write([]byte("MongoDB connection lost"))
+	}
 }
 
 func getSummary(w http.ResponseWriter, r *http.Request) {
